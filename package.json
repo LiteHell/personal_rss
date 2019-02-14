@@ -1,0 +1,16 @@
+{
+  "name": "webtoon2rss",
+  "version": "1.0.0",
+  "description": "serves naver webtoon or daum webtoon in rss feed",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./bin/test.js"
+  },
+  "author": "LiteHell",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.4"
+  }
+}
