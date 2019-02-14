@@ -1,7 +1,8 @@
 'use strict';
 
 const cheerio = require('cheerio'),
-      axios = require('axios');
+      axios = require('axios'),
+      moment = require('moment');
 
 class NaverWebtoon {
     constructor(webtoonId) {
@@ -9,7 +10,8 @@ class NaverWebtoon {
     }
     async info() {
         let webtoonId = this.webtoonId
-        let response = await axios.get('https://comic.naver.com/webtoon/list.nhn?titleId=' + webtoonId)
+        let url = 'https://comic.naver.com/webtoon/list.nhn?titleId=' + webtoonId;
+        let response = await axios.get(url)
         let responseText = response.data;
         let $ = cheerio.load(responseText);
 
@@ -18,7 +20,7 @@ class NaverWebtoon {
         let title = $('.comicinfo .detail h2').text().trim(),
             description = $('.comicinfo .detail > p').text().trim(),
             thumbnail = $('.comicinfo .thumb a img').attr('src');
-        return {title, author, description, thumbnail}
+        return {title, author, description, thumbnail, url, sitename: 'naver'}
 
     }
     async getImages(_episodeId) {
@@ -48,7 +50,7 @@ class NaverWebtoon {
             let thumbnail = episode.find('td a img').attr('src'),
                 title = episode.find('td.title a').text().trim(),
                 ranking = parseFloat(episode.find('td .rating_type strong').text().trim()),
-                uploadDate = episode.find('td.num').text(),
+                uploadDate = moment(episode.find('td.num').text(), "YYYY-MM-DD").toISOString(),
                 url = 'https://comic.naver.com' + episode.find('td.title a').attr('href'),
                 id = /[\?&]?no=([0-9]+)/.exec(url)[1]
             result.push({thumbnail, title, ranking, uploadDate, url, id, episodeNo: parseInt(id)});

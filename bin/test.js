@@ -2,7 +2,10 @@
 'use strict';
 
 const NaverWebtoon = require('../src/parsers/naver'),
-      DaumWebtoon = require('../src/parsers/daum');
+      DaumWebtoon = require('../src/parsers/daum'),
+      WebtoonFeed = require('../src/feed/webtoon'),
+      path = require('path'),
+      fs = require('fs');
 async function testWebtoon(webtoon) {
     const util = require('util');
 
@@ -28,4 +31,12 @@ async function testWebtoon(webtoon) {
 
     let daumWebtoon = new DaumWebtoon('kindergarten')
     await testWebtoon(daumWebtoon)
+
+    console.log('wrote naver webtoon rss')
+    let webtoonFeed = new WebtoonFeed(naverWebtoon)
+    fs.writeFileSync(path.join(__dirname, '../test/naver_rss.xml'), await webtoonFeed.rss(), {encoding: 'utf8', flag:'w+'})
+
+    console.log('wrote daum webtoon rss')
+    webtoonFeed = new WebtoonFeed(daumWebtoon)
+    fs.writeFileSync(path.join(__dirname, '../test/daum_rss.xml'), await webtoonFeed.rss(), {encoding: 'utf8', flag:'w+'})
 })();
