@@ -9,6 +9,10 @@ const NaverWebtoon = require('../src/parsers/naver'),
 async function testWebtoon(webtoon) {
     const util = require('util');
 
+    let info = await webtoon.info();
+    console.log('webtoon info:');
+    console.log(util.inspect(info, false, null, true)) // {title, description, author, thumbnail }
+
     let episodes = await webtoon.parse();
     console.log('episodes:')
     console.log(util.inspect(episodes, false, null, true)) // {thumbnail, title, ranking, uploadDate, url, id, episodeNo}
@@ -17,9 +21,12 @@ async function testWebtoon(webtoon) {
     console.log('imgs of latest episode:');
     console.log(util.inspect(imgs, false, null, true)) // [string]
 
-    let info = await webtoon.info();
-    console.log('webtoon info:');
-    console.log(util.inspect(info, false, null, true)) // {title, description, author, thumbnail }
+    let webtoonFeed = new WebtoonFeed(webtoon)
+    console.log('writing rss')
+    fs.writeFileSync(path.join(__dirname, `../test/${info.sitename}_${webtoon.webtoonId}_rss.xml`), await webtoonFeed.rss(), {encoding: 'utf8', flag:'w+'})
+    console.log('writing atom')
+    fs.writeFileSync(path.join(__dirname, `../test/${info.sitename}_${webtoon.webtoonId}_atom.xml`), await webtoonFeed.atom(), {encoding: 'utf8', flag:'w+'})
+    console.log('done')
 }
 (async() => {
     console.log('naver webtoon 566902');
@@ -31,12 +38,4 @@ async function testWebtoon(webtoon) {
 
     let daumWebtoon = new DaumWebtoon('kindergarten')
     await testWebtoon(daumWebtoon)
-
-    console.log('wrote naver webtoon rss')
-    let webtoonFeed = new WebtoonFeed(naverWebtoon)
-    fs.writeFileSync(path.join(__dirname, '../test/naver_rss.xml'), await webtoonFeed.rss(), {encoding: 'utf8', flag:'w+'})
-
-    console.log('wrote daum webtoon rss')
-    webtoonFeed = new WebtoonFeed(daumWebtoon)
-    fs.writeFileSync(path.join(__dirname, '../test/daum_rss.xml'), await webtoonFeed.rss(), {encoding: 'utf8', flag:'w+'})
 })();

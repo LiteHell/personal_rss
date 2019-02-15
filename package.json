@@ -4,7 +4,8 @@
   "description": "serves naver webtoon or daum webtoon in rss feed",
   "main": "index.js",
   "scripts": {
-    "test": "node ./bin/test.js"
+    "test": "node ./bin/test.js",
+    "start": "node ./bin/start.js"
   },
   "author": "LiteHell",
   "license": "UNLICENSED",
@@ -12,8 +13,10 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.4",
+    "html-escape": "^2.0.0",
     "moment": "^2.24.0",
     "momentjs": "^2.0.0",
+    "xml-escape": "^1.1.0",
     "xml-js": "^1.6.11"
   }
 }
