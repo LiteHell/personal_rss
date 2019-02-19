@@ -23,15 +23,15 @@ app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res) => {
             feed.rss().then(rss => {
                 res.type(rssMime).end(rss)
             }).catch(err => {
-                rss.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
+                res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
                 console.error(err)
             })
             break;
         case 'atom':
-            feed.rss().then(atom => {
+            feed.atom().then(atom => {
                 res.type(atomMime).end(atom)
             }).catch(err => {
-                rss.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
+                res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
                 console.error(err)
             })
             break;
