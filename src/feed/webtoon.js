@@ -1,6 +1,7 @@
 const Rss = require('./format/rss'),
       Atom = require('./format/atom'),
-      cheerio = require('cheerio');
+      moment = require('moment'),
+      rssMomentFormat = 'ddd, DD MMM YYYY HH:mm:ss ZZ';
 
 class WebtoonFeed {
     constructor(webtoon) {
@@ -14,7 +15,7 @@ class WebtoonFeed {
             title: webtoonInfo.title,
             description: webtoonInfo.description,
             link: webtoonInfo.url,
-            lastBuildDate: (new Date()).toString(),
+            lastBuildDate: moment().format(rssMomentFormat),
             ttl: 30
         });
         rss.setChannelImage(webtoonInfo.thumbnail, webtoonInfo.title, webtoonInfo.url);
@@ -25,7 +26,7 @@ class WebtoonFeed {
                 description: `[${episode.episodeNo}] ${episode.title}`,
                 link: episode.url,
                 guid: 'webtoon-' + webtoonInfo.sitename + '-' + this._webtoon.webtoonId + '-' + episode.id,
-                pubDate: episode.uploadDate
+                pubDate: episode.uploadDate.format(rssMomentFormat)
             })
         }
         return rss.generate()
@@ -42,7 +43,7 @@ class WebtoonFeed {
             title: webtoonInfo.title,
             subtitle: webtoonInfo.description,
             id: webtoonIdHead,
-            updated: episodes[0].uploadDate,
+            updated: episodes[0].uploadDate.toISOString(),
         });
         atom.setAuthor(webtoonInfo.author)
         if(episodes.length > 25) episodes = episodes.slice(0, 25);
@@ -67,7 +68,7 @@ class WebtoonFeed {
                 summary: `[${episode.episodeNo}] ${episode.title}`,
                 link: episode.url,
                 id: webtoonIdHead + '-' + episode.id,
-                updated: episode.uploadDate,
+                updated: episode.uploadDate.toISOString(),
                 content: imgContents
             })
         }

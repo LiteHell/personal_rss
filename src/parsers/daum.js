@@ -67,7 +67,7 @@ class DaumWebtoon {
             let thumbnail = episode.thumbnailImage.url,
                 title = episode.title,
                 ranking = null,
-                uploadDate = moment(episode.dateCreated, "YYYYMMDDHHmmss").toISOString(),
+                uploadDate = moment(episode.dateCreated, "YYYYMMDDHHmmss"),
                 id = episode.articleId,
                 url = 'http://webtoon.daum.net/webtoon/viewer/' + id,
                 episodeNo = episode.episode;

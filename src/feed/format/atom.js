@@ -15,7 +15,7 @@ class Atom {
                 type: 'element',
                 name: 'feed',
                 attributes: {
-                    'xmlns': 'http://www.w3.org/2005/atom'
+                    'xmlns': 'http://www.w3.org/2005/Atom'
                 },
                 elements: [
                     // title, subtitle, link(href, rel=self), author := name, id, updated
