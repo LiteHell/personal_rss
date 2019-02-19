@@ -53,7 +53,7 @@ class WebtoonFeed {
                 imgContents.push({
                     type: 'element',
                     name: 'img',
-                    attribute: {
+                    attributes: {
                         src: imgs[i]
                     }
                 });
