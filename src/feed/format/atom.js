@@ -64,7 +64,8 @@ class Atom {
                     type: "element",
                     name: "link",
                     attributes: {
-                        "href": escapeXml(item.link)
+                        "href": escapeXml(item.link),
+                        "rel": "self"
                     }
                 }
 

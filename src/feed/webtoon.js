@@ -25,7 +25,7 @@ class WebtoonFeed {
                 title: episode.title,
                 description: `[${episode.episodeNo}] ${episode.title}`,
                 link: episode.url,
-                guid: 'webtoon-' + webtoonInfo.sitename + '-' + this._webtoon.webtoonId + '-' + episode.id,
+                guid: episode.url,
                 pubDate: episode.uploadDate.format(rssMomentFormat)
             })
         }
@@ -42,7 +42,7 @@ class WebtoonFeed {
         let atom = new Atom({
             title: webtoonInfo.title,
             subtitle: webtoonInfo.description,
-            id: webtoonIdHead,
+            id: webtoonInfo.url,
             updated: episodes[0].uploadDate.toISOString(),
         });
         atom.setAuthor(webtoonInfo.author)
@@ -67,7 +67,7 @@ class WebtoonFeed {
                 title: episode.title,
                 summary: `[${episode.episodeNo}] ${episode.title}`,
                 link: episode.url,
-                id: webtoonIdHead + '-' + episode.id,
+                id: episode.url,
                 updated: episode.uploadDate.toISOString(),
                 content: imgContents
             })
