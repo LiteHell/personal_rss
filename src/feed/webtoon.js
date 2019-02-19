@@ -47,11 +47,20 @@ class WebtoonFeed {
         atom.setAuthor(webtoonInfo.author)
         if(episodes.length > 25) episodes = episodes.slice(0, 25);
         for(let episode of episodes) {
-            let $ = cheerio.load('<div></div>')
+            let imgContents = [];
             let imgs = await this._webtoon.getImages(episode);
             for(let i = 0; i < imgs.length; i++) {
-                $('div').append(`<img id="img-${i}"></img>`);
-                $(`img#img-${i}`).attr('src', imgs[i]);
+                imgContents.push({
+                    type: 'element',
+                    name: 'img',
+                    attribute: {
+                        src: imgs[i]
+                    }
+                });
+                imgContents.push({
+                    type: 'element',
+                    name: 'br'
+                });
             }
             atom.addItem({
                 title: episode.title,
@@ -59,7 +68,7 @@ class WebtoonFeed {
                 link: episode.url,
                 id: webtoonIdHead + '-' + episode.id,
                 updated: episode.uploadDate,
-                content: $.html()
+                content: imgContents
             })
         }
         return atom.generate()

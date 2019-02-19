@@ -73,11 +73,15 @@ class Atom {
                     type: "element",
                     name: "content",
                     attributes: {
-                        type: 'html'
+                        type: 'xhtml'
                     },
                     elements: [{
-                        type: "text",
-                        text: escapeHtml(item.content)
+                        type: "element",
+                        name: "div",
+                        attributes: {
+                            xmlns: 'http://www.w3.org/1999/xhtml'
+                        },
+                        elements: item.content
                     }]
                 }
 
