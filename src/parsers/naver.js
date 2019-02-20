@@ -27,7 +27,7 @@ class NaverWebtoon {
         let title = $('.comicinfo .detail h2').text().trim(),
             description = $('.comicinfo .detail > p').text().trim(),
             thumbnail = $('.comicinfo .thumb a img').attr('src'),
-            leagueType = /^\/([a-zA-Z]+)\//.exec($($('.paginate a.page').get(0)).attr('href'))[1];
+            leagueType = /^\/([a-zA-Z]+)\//.exec($($('.viewList tbody tr td.title a').get(0)).attr('href'))[1];
         return {title, author, description, thumbnail, url, sitename: 'naver', leagueType}
 
     }
@@ -44,6 +44,15 @@ class NaverWebtoon {
             result.push(episode.attr('src'))
         }
         return result;
+    }
+    async getEpisodeInfo(_episodeId) {
+        let episodeId = _episodeId.id ? _episodeId.id : _episodeId
+        let response = await axios.get(`https://comic.naver.com/${this.leagueType}/detail.nhn?titleId=${this.webtoonId}&no=${episodeId}`);
+        let responseText = response.data;
+        let $ = cheerio.load(responseText)
+        
+        let authorComment = $('.writer_info > p').text()
+        return {authorComment};
     }
     async parse() {
         let webtoonId = this.webtoonId

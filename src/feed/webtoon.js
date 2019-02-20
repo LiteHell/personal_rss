@@ -1,7 +1,7 @@
 const Rss = require('./format/rss'),
-      Atom = require('./format/atom'),
-      moment = require('moment'),
-      rssMomentFormat = 'ddd, DD MMM YYYY HH:mm:ss ZZ';
+    Atom = require('./format/atom'),
+    moment = require('moment'),
+    rssMomentFormat = 'ddd, DD MMM YYYY HH:mm:ss ZZ';
 
 class WebtoonFeed {
     constructor(webtoon) {
@@ -20,11 +20,14 @@ class WebtoonFeed {
             ttl: 30
         });
         rss.setChannelImage(webtoonInfo.thumbnail, webtoonInfo.title, webtoonInfo.url);
-        if(episodes.length > 25) episodes = episodes.slice(0, 25);
-        for(let episode of episodes) {
+        if (episodes.length > 25) episodes = episodes.slice(0, 25);
+        for (let episode of episodes) {
+            let description = `[${episode.episodeNo}] ${episode.title}`
+            if (this._webtoon.getEpisodeInfo)
+                description += `\n${(await this._webtoon.getEpisodeInfo(episode)).authorComment}`;
             rss.addItem({
                 title: episode.title,
-                description: `[${episode.episodeNo}] ${episode.title}`,
+                description: description,
                 link: episode.url,
                 guid: episode.url,
                 pubDate: episode.uploadDate.format(rssMomentFormat)
@@ -40,7 +43,6 @@ class WebtoonFeed {
 
         let webtoonInfo = await this._webtoon.info();
         let episodes = await this._webtoon.parse();
-        let webtoonIdHead = 'webtoon-' + webtoonInfo.sitename + '-' + this._webtoon.webtoonId;
         let atom = new Atom({
             title: webtoonInfo.title,
             subtitle: webtoonInfo.description,
@@ -48,11 +50,14 @@ class WebtoonFeed {
             updated: episodes[0].uploadDate.toISOString(),
         });
         atom.setAuthor(webtoonInfo.author)
-        if(episodes.length > 25) episodes = episodes.slice(0, 25);
-        for(let episode of episodes) {
+        if (episodes.length > 25) episodes = episodes.slice(0, 25);
+        for (let episode of episodes) {
             let imgContents = [];
             let imgs = await this._webtoon.getImages(episode);
-            for(let i = 0; i < imgs.length; i++) {
+            let authorComment = null;
+            if (this._webtoon.getEpisodeInfo)
+                authorComment = (await this._webtoon.getEpisodeInfo(episode)).authorComment;
+            for (let i = 0; i < imgs.length; i++) {
                 imgContents.push({
                     type: 'element',
                     name: 'img',
@@ -65,9 +70,18 @@ class WebtoonFeed {
                     name: 'br'
                 });
             }
+            if (authorComment)
+                imgContents.push({
+                    type: 'element',
+                    name: 'p',
+                    elements: [{
+                        type: 'text',
+                        text: authorComment
+                    }]
+                });
             atom.addItem({
                 title: episode.title,
-                summary: `[${episode.episodeNo}] ${episode.title}`,
+                summary: authorComment ? authorComment : `[${episode.episodeNo}] ${episode.title}`,
                 link: episode.url,
                 id: episode.url,
                 updated: episode.uploadDate.toISOString(),
