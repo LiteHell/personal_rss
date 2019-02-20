@@ -7,6 +7,13 @@ const cheerio = require('cheerio'),
 class NaverWebtoon {
     constructor(webtoonId) {
         this.webtoonId = webtoonId
+        this._inited = false;
+    }
+    async init() {
+        if(this._inited) return;
+        let {leagueType} = await this.info();
+        this.leagueType = leagueType;
+        this._inited = true;
     }
     async info() {
         let webtoonId = this.webtoonId
@@ -19,13 +26,14 @@ class NaverWebtoon {
         $('.comicinfo .detail h2 .wrt_nm').remove();
         let title = $('.comicinfo .detail h2').text().trim(),
             description = $('.comicinfo .detail > p').text().trim(),
-            thumbnail = $('.comicinfo .thumb a img').attr('src');
-        return {title, author, description, thumbnail, url, sitename: 'naver'}
+            thumbnail = $('.comicinfo .thumb a img').attr('src'),
+            leagueType = /^\/([a-zA-Z]+)\//.exec($($('.paginate a.page').get(0)).attr('href'))[1];
+        return {title, author, description, thumbnail, url, sitename: 'naver', leagueType}
 
     }
     async getImages(_episodeId) {
         let episodeId = _episodeId.id ? _episodeId.id : _episodeId
-        let response = await axios.get(`https://comic.naver.com/bestChallenge/detail.nhn?titleId=${this.webtoonId}&no=${episodeId}`);
+        let response = await axios.get(`https://comic.naver.com/${this.leagueType}/detail.nhn?titleId=${this.webtoonId}&no=${episodeId}`);
         let responseText = response.data;
         let $ = cheerio.load(responseText)
 
@@ -39,7 +47,7 @@ class NaverWebtoon {
     }
     async parse() {
         let webtoonId = this.webtoonId
-        let response = await axios.get('https://comic.naver.com/webtoon/list.nhn?titleId=' + webtoonId)
+        let response = await axios.get(`https://comic.naver.com/${this.leagueType}/list.nhn?titleId=${webtoonId}`)
         let responseText = response.data;
         let $ = cheerio.load(responseText);
 

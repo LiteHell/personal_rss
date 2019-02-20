@@ -52,6 +52,9 @@ class DaumWebtoon {
         }
         // title, author, description, thumbnail
     }
+    async init() {
+        
+    }
     /**
      * 에피소드 목록을 가져옵니다.
      * @async

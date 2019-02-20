@@ -9,6 +9,7 @@ class WebtoonFeed {
     }
 
     async rss() {
+        await this._webtoon.init();
         let webtoonInfo = await this._webtoon.info();
         let episodes = await this._webtoon.parse();
         let rss = new Rss({
@@ -33,6 +34,7 @@ class WebtoonFeed {
     }
 
     async atom() {
+        await this._webtoon.init();
         // title, subtitle, author := name, id, updated
         // entry := {title, link(href), id, updated, summary, content(type=html), author := {name, email}}
 
