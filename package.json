@@ -13,6 +13,7 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.4",
+    "feed": "^2.0.4",
     "html-escape": "^2.0.0",
     "moment": "^2.24.0",
     "momentjs": "^2.0.0",

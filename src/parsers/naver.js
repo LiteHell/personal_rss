@@ -67,7 +67,7 @@ class NaverWebtoon {
             let thumbnail = episode.find('td a img').attr('src'),
                 title = episode.find('td.title a').text().trim(),
                 ranking = parseFloat(episode.find('td .rating_type strong').text().trim()),
-                uploadDate = moment(episode.find('td.num').text(), "YYYY-MM-DD"),
+                uploadDate = moment(episode.find('td.num').text(), "YYYY-MM-DD").toDate(),
                 url = 'https://comic.naver.com' + episode.find('td.title a').attr('href'),
                 id = /[\?&]?no=([0-9]+)/.exec(url)[1]
             result.push({thumbnail, title, ranking, uploadDate, url, id, episodeNo: parseInt(id)});

@@ -1,6 +1,6 @@
 let express = require('express'),
     app = express(),
-    CauFeed = require('../feed/cau'),
+    CauNoticeFeed = require('../feed/cau/notice'),
     rssMime = 'application/rss+xml; charset=utf-8',
     atomMime = 'application/atom+xml; charset=utf-8';
 
@@ -40,8 +40,8 @@ app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res) => {
     }
 
 });
-app.get('/cau', (req, res) => {
-    let cauFeed = new CauFeed();
+app.get('/cau/notice', (req, res) => {
+    let cauFeed = new CauNoticeFeed();
     cauFeed.torss().then(rss => {
         res.type(rssMime).end(rss)
     }).catch(err => {
@@ -53,7 +53,7 @@ app.get('/', (req, res) => {
     res.type('text/html').end(`<!DOCTYPE html>
     <html><head><title>Persoanl RSS</title><meta chartset="utf-8"></head><body><h1>RSS/Atom for personal use</h1>
     <p>for personal use. <a href="mailto:litehell@litehell.info">Written by LiteHell</a></p><h2>Webtoon</h2><p>Daum webtoonleague isn't supported.<br><code>/webtoon/[naver or daum]/[webtoon id]/[atom or rss]</code></p>
-    <h2>CAU Notice</h2><p>rss format is served<br><code>/cau</code></p>`)
+    <h2>CAU Notice</h2><p>rss format is served<br><code>/cau/notice</code></p>`)
 })
 app.get('/robots.txt', (req, res) =>{
     res.type('text/plain').end('User-agent: *\nDisallow: /');
