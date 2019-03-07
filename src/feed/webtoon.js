@@ -19,7 +19,7 @@ class WebtoonFeed {
             language: "ko-KR",
             image: webtoonInfo.thumbnail,
             updated: new Date(episodes[0].uploadDate),
-            generator: "LiteHell's personal generator, written in node.js",
+            generator: "litehell's personalRss",
             feedLinks: {
                 atom: `https://rss.litehell.info/webtoon/${webtoonInfo.sitename}/${this._webtoon.webtoonId}/atom`,
                 rss: `https://rss.litehell.info/webtoon/${webtoonInfo.sitename}/${this._webtoon.webtoonId}/rss`
