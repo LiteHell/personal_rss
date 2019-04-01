@@ -1,6 +1,7 @@
 let express = require('express'),
     app = express(),
     CauNoticeFeed = require('../feed/cau/notice'),
+    CauBoardFeed = require('../feed/cau/board'),
     rssMime = 'application/rss+xml; charset=utf-8',
     atomMime = 'application/atom+xml; charset=utf-8';
 
@@ -49,6 +50,28 @@ app.get('/cau/notice', (req, res) => {
         console.error(err)
     })
 })
+let titles = {
+    'cse': '소프트웨어학부 공지사항',
+    'abeek': '공학인증혁신센터 공지사항',
+    'sw': '다빈치sw교욱원 공지사항'
+}
+app.get('/cau/:parserName/:feedtype', (req, res) => {
+    let {parserName, feedtype} = req.params;
+    // parserName, title, description, link
+    if(!titles[parserName])
+        return res.status(500).type('html').end('<h1>Unsupported board</h1>')
+    if(feedtype !== 'rss' && feedtype !== 'atom')
+        return res.status(500).type('html').end('<h1>Unsupported feed type</h1>')
+
+    let boardFeed = new CauBoardFeed(parserName, titles[parserName], titles[parserName], `https://${feedtype}.cau.ac.kr`);
+    boardFeed[feedtype]().then(result => {
+        res.type(feedtype === 'rss' ? rssMime : atomMime).end(result)
+    }).catch(err => {
+        res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
+        console.error(err)
+    })
+    
+});
 app.get('/', (req, res) => {
     res.type('text/html').end(`<!DOCTYPE html>
     <html><head><title>Persoanl RSS</title><meta chartset="utf-8"></head><body><h1>RSS/Atom for personal use</h1>
