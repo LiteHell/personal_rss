@@ -15,12 +15,12 @@ class CauSwNotice {
         let articles = $("#boardForm table tbody tr");
         for(let i = 0; i < articles.length; i++) {
             let article = $(articles[i]),
-                tds = article.filter('td');
+                tds = article.find('td');
             result.push({
-                url: url.resolve('https://sw.cau.ac.kr/board/list',article.find('td.tl a').attr('href').substring(1)),
+                url: url.resolve('https://sw.cau.ac.kr/board/list',article.find('td.tl a').attr('href')),
                 title: article.find('td.tl a').text().trim(),
                 author : null,
-                date: moment($(td[2]).text().trim(), 'YYYY-MM-DD').toDate()
+                date: moment($(tds[2]).text().trim(), 'YYYY-MM-DD').toDate()
             });
         }
         return result;
@@ -33,10 +33,10 @@ class CauSwNotice {
         let fileTags = $('#boardForm table tbody tr:first-child td[colspan] a');
         if (fileTags.length > 0) {
             for(let i = 0; i < fileTags.length; i++) {
-                let fileTag = $(filesTags[i]);
+                let fileTag = $(fileTags[i]);
                 files.push({
                     name: fileTag.text().trim(),
-                    url: url.resolve(url, fileTag.href())
+                    url: require('url').resolve(url, fileTag.attr('href'))
                 })
             }
         }

@@ -19,8 +19,8 @@ class CauCseNotice {
             result.push({
                 url: url.resolve('http://cse.cau.ac.kr/sub05/sub0501.php', article.find('td.aleft a').attr('href')),
                 title: article.find('td.aleft a').text().trim(),
-                author : $(pcOnlyTds[2]).text(),
-                date: moment($(pcOnlyTds[3]).text().trim(), 'YYYY.MM.DD').toDate()
+                author : $(pcOnlyTds[1]).text(),
+                date: moment($(pcOnlyTds[2]).text().trim(), 'YYYY.MM.DD').toDate()
             });
         }
         return result;
@@ -36,10 +36,11 @@ class CauCseNotice {
                 let fileTag = $(fileTags[i]);
                 files.push({
                     name: fileTag.text().trim(),
-                    url: fileTag.attr('onclick').replace(/goLocation\(['"](.+?)['"] ?, ?['"](.+?)['"] ?, ?['"](.+?)['"]\)/, '$1?uid=$2&code=$3')
+                    url: require('url').resolve(url, fileTag.attr('onclick').replace(/goLocation\(['"](.+?)['"] ?, ?['"](.+?)['"] ?, ?['"](.+?)['"]\)/, '$1?uid=$2&code=$3'))
                 })
             }
         }
+        $('section#content .detail .files').remove();
         return {
             content: $('section#content .detail').html(),
             files

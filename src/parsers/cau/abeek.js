@@ -36,7 +36,7 @@ class CauAbeekNotice {
             let fileTag = $($(viewListTds[i]).find('td a'));
             files.push({
                 name: fileTag.text().trim(),
-                url: url.resolve(url, fileTag.href())
+                url: require('url').resolve(url, fileTag.attr('href'))
             })
         }
         return {
