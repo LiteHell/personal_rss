@@ -41,6 +41,7 @@ app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res) => {
     }
 
 });
+/*
 app.get('/cau/notice', (req, res) => {
     let cauFeed = new CauNoticeFeed();
     cauFeed.torss().then(rss => {
@@ -49,12 +50,13 @@ app.get('/cau/notice', (req, res) => {
         res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
         console.error(err)
     })
-})
+})*/
 let titles = {
     'cse': '소프트웨어학부 공지사항',
     'abeek': '공학인증혁신센터 공지사항',
-    'sw': '다빈치sw교욱원 공지사항'
-}
+    'sw': '다빈치sw교욱원 공지사항',
+    'dormitory': '중앙대학교 서울캠퍼스 기숙사 공지사항'
+};
 app.get('/cau/:parserName/:feedtype', (req, res) => {
     let {parserName, feedtype} = req.params;
     // parserName, title, description, link
@@ -76,11 +78,11 @@ app.get('/', (req, res) => {
     res.type('text/html').end(`<!DOCTYPE html>
     <html><head><title>Persoanl RSS</title><meta chartset="utf-8"></head><body><h1>RSS/Atom for personal use</h1>
     <p>for personal use. <a href="mailto:litehell@litehell.info">Written by LiteHell</a></p><h2>Webtoon</h2><p>Daum webtoonleague isn't supported.<br><code>/webtoon/[naver or daum]/[webtoon id]/[atom or rss]</code></p>
-    <h2>CAU Notice</h2><p>rss format is served<br><code>/cau/notice</code></p>
-    <h2>CAU cse/sw/abeek Notice</h2><p><code>/cau/[cse, sw, abeek]/[atom, rss]</code></p>`)
-})
+    <h2><del>CAU Notice</del></h2><p>Not supported now. use <a href="https://www.cau.ac.kr/cms/FR_PRO_CON/BoardRss.do?pageNo=1&pagePerCnt=15&MENU_ID=100&SITE_NO=2&BOARD_SEQ=4&S_CATE_SEQ=&BOARD_TYPE=C0301&BOARD_CATEGORY_NO=&P_TAB_NO=&TAB_NO=&P_CATE_SEQ=&CATE_SEQ=&SEARCH_FLD=SUBJECT&SEARCH=">this url</a> instead</p><p><del>rss format is served<br><code>/cau/notice</code></del></p>
+    <h2>CAU cse/sw/abeek/dormitory Notice</h2><p><code>/cau/[cse, sw, abeek, dormitory]/[atom, rss]</code></p>`)
+});
 app.get('/robots.txt', (req, res) =>{
     res.type('text/plain').end('User-agent: *\nDisallow: /');
-})
+});
 
 module.exports = app;
