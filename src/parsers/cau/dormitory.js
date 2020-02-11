@@ -28,7 +28,6 @@ class CauDormitoryNotice {
                 date: moment($(tds[4]).text().trim(), 'YY.MM.DD').toDate()
             });
         }
-        console.log(result);
         return result;
     }
     async getArticle(url) {
