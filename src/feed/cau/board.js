@@ -24,7 +24,7 @@ class CauBoardFeed {
         <details>
         <sumaary>첨부파일 (${files.length}개)</summary>
         <ul>
-        ${files.map(i => `<a href="${encodeURIComponent(i.url)}" download>${i.name}</a>`)}
+        ${files.map(i => `<a href="${i.url}" download>${i.name}</a>`)}
         </ul>
         </details>
         </div>`
