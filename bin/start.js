@@ -1,6 +1,6 @@
 #!node
-let webapp = require('../src/web'),
-    config = require('../config.json')
+const webapp = require('../src/web'),
+      config = require('../config.json')
 webapp.listen(config.httpPort, () => {
-    console.log('listening')
+    console.log('Now Listening on ' + config.httpPort);
 });

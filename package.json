@@ -8,9 +8,9 @@
     "start": "node ./bin/start.js"
   },
   "author": "LiteHell",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.4",
     "feed": "^2.0.4",
@@ -18,6 +18,8 @@
     "iconv-lite": "^0.5.1",
     "moment": "^2.24.0",
     "momentjs": "^2.0.0",
+    "pug": "^2.0.4",
+    "redis": "^3.0.2",
     "xml-escape": "^1.1.0",
     "xml-js": "^1.6.11"
   }

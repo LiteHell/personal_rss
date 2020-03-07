@@ -1,11 +1,66 @@
 let express = require('express'),
+    config = require('../../config.json'),
+    path = require('path'),
+    axios = require('axios'),
     app = express(),
-    CauNoticeFeed = require('../feed/cau/notice'),
     CauBoardFeed = require('../feed/cau/board'),
+    redis = require('redis'),
+    redisClient = redis.createClient(config.redisConfig),
     rssMime = 'application/rss+xml; charset=utf-8',
     atomMime = 'application/atom+xml; charset=utf-8';
 
-app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res) => {
+const titles = {
+    'cse': '소프트웨어학부 공지사항',
+    'abeek': '공학인증혁신센터 공지사항',
+    'sw': '다빈치sw교욱원 공지사항',
+    'dormitory': '중앙대학교 서울캠퍼스 기숙사 공지사항'
+};
+
+app.set('views', path.join(__dirname, '../../views'));
+app.set('view engine', 'pug');
+app.use(express.static(path.join(__dirname, '../../static')));
+
+app.get('/webtoon/daum/:viewerId/toWebtoonId', (req, res, next) => {
+    let {viewerId} = req.params;
+    req.cacheKey = `daum/${viewerId}/webtoonId`
+    redisClient.get(req.cacheKey, (err, reply) => {
+        if (err || reply == null)
+            next();
+        else
+            res.type("application/json").end(JSON.stringify(reply));
+    })
+}, (req, res, next) => {
+    let {viewerId} = req.params;
+    axios.get(`http://webtoon.daum.net/data/pc/webtoon/viewer/${viewerId}`).then(response => {
+        try {
+            let resJson = JSON.stringify(response.data.data.webtoonEpisode.webtoon.nickname || null);
+            res.type("application/json").end(resJson);
+            redisClient.set(req.cacheKey, resJson, 'EX', 300);
+        } catch (err) {
+            res.type("application/json").end('null')
+            next(err);
+        }
+    });
+});
+app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res, next) => {
+    let {sitename, webtoonId, feedtype} = req.params
+    req.cacheKey = `${sitename}/${webtoonId}/${feedtype}`;
+    redisClient.get(req.cacheKey, (err, reply) => {
+        if (err || reply == null)
+            next();
+        else
+            switch(feedtype) {
+                case 'rss':
+                    res.type(rssMime).end(reply)
+                    break;
+                case 'atom':
+                    res.type(atomMime).end(reply)
+                    break;
+                default:
+                    next(new Error("Unsupported feed type"));
+            }
+    });
+}, (req, res, next) => {
     let webtoonClass;
     switch(req.params.sitename) {
         case 'naver':
@@ -15,74 +70,68 @@ app.get('/webtoon/:sitename/:webtoonId/:feedtype', (req, res) => {
             webtoonClass = require('../parsers/daum');
             break;
         default:
-            return res.status(400).type('html').end('<h1>Unsupported webtoon site</h1><p>Only daum and naver are supported.</p>')
+            throw new Error("Unsupported webtoon site");
     }
     let webtoon = new webtoonClass(req.params.webtoonId)
     let feed = new (require('../feed/webtoon'))(webtoon);
     switch(req.params.feedtype) {
         case 'rss':
             feed.rss().then(rss => {
+                redisClient.set(req.cacheKey, rss, 'EX', 300);
                 res.type(rssMime).end(rss)
-            }).catch(err => {
-                res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
-                console.error(err)
-            })
+            }).catch(next)
             break;
         case 'atom':
             feed.atom().then(atom => {
+                redisClient.set(req.cacheKey, atom, 'EX', 300);
                 res.type(atomMime).end(atom)
-            }).catch(err => {
-                res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
-                console.error(err)
-            })
+            }).catch(next)
             break;
         default:
-            return res.status(400).type('html').end('<h1>Unsupported feedtype</h1><p>only atom and rss are supported</p>')
+            throw new Error("Unsupported feed type");
     }
 
 });
-/*
-app.get('/cau/notice', (req, res) => {
-    let cauFeed = new CauNoticeFeed();
-    cauFeed.torss().then(rss => {
-        res.type(rssMime).end(rss)
-    }).catch(err => {
-        res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
-        console.error(err)
+app.get('/cau/:parserName/:feedtype', (req, res, next) => {
+    let {parserName, feedtype} = req.params
+    req.cacheKey = `cau/${parserName}/${feedtype}`;
+    redisClient.get(req.cacheKey, (err, reply) => {
+        if (err || reply == null)
+            next();
+        else
+            switch(feedtype) {
+                case 'rss':
+                    res.type(rssMime).end(reply)
+                    break;
+                case 'atom':
+                    res.type(atomMime).end(reply)
+                    break;
+                default:
+                    next(new Error("Unsupported feed type"));
+            }
     })
-})*/
-let titles = {
-    'cse': '소프트웨어학부 공지사항',
-    'abeek': '공학인증혁신센터 공지사항',
-    'sw': '다빈치sw교욱원 공지사항',
-    'dormitory': '중앙대학교 서울캠퍼스 기숙사 공지사항'
-};
-app.get('/cau/:parserName/:feedtype', (req, res) => {
+}, (req, res, next) => {
     let {parserName, feedtype} = req.params;
     // parserName, title, description, link
     if(!titles[parserName])
-        return res.status(500).type('html').end('<h1>Unsupported board</h1>')
+        throw new Error("Unsupported board");
     if(feedtype !== 'rss' && feedtype !== 'atom')
-        return res.status(500).type('html').end('<h1>Unsupported feed type</h1>')
+        throw new Error("Unsupported feed type");
 
     let boardFeed = new CauBoardFeed(parserName, titles[parserName], titles[parserName], `https://${feedtype}.cau.ac.kr`);
     boardFeed[feedtype]().then(result => {
+        redisClient.set(req.cacheKey, result, 'EX', 300);
         res.type(feedtype === 'rss' ? rssMime : atomMime).end(result)
-    }).catch(err => {
-        res.status(500).type('html').end('<h1>Server internal error</h1><p>why?</p>')
-        console.error(err)
-    })
+    }).catch(next)
     
 });
 app.get('/', (req, res) => {
-    res.type('text/html').end(`<!DOCTYPE html>
-    <html><head><title>Persoanl RSS</title><meta chartset="utf-8"></head><body><h1>RSS/Atom for personal use</h1>
-    <p>for personal use. <a href="mailto:litehell@litehell.info">Written by LiteHell</a></p><h2>Webtoon</h2><p>Daum webtoonleague isn't supported.<br><code>/webtoon/[naver or daum]/[webtoon id]/[atom or rss]</code></p>
-    <h2><del>CAU Notice</del></h2><p>Not supported now. use <a href="https://www.cau.ac.kr/cms/FR_PRO_CON/BoardRss.do?pageNo=1&pagePerCnt=15&MENU_ID=100&SITE_NO=2&BOARD_SEQ=4&S_CATE_SEQ=&BOARD_TYPE=C0301&BOARD_CATEGORY_NO=&P_TAB_NO=&TAB_NO=&P_CATE_SEQ=&CATE_SEQ=&SEARCH_FLD=SUBJECT&SEARCH=">this url</a> instead</p><p><del>rss format is served<br><code>/cau/notice</code></del></p>
-    <h2>CAU cse/sw/abeek/dormitory Notice</h2><p><code>/cau/[cse, sw, abeek, dormitory]/[atom, rss]</code></p>`)
-});
-app.get('/robots.txt', (req, res) =>{
-    res.type('text/plain').end('User-agent: *\nDisallow: /');
+    res.render('index', {cauTitles: titles});
 });
 
+app.use(function (err, req, res, next) {
+    console.error(err.stack)
+    if (!res.headersSent)
+        res.status(500).render('error');
+});
 module.exports = app;
