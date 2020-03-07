@@ -27,7 +27,7 @@ app.get('/webtoon/daum/:viewerId/toWebtoonId', (req, res, next) => {
         if (err || reply == null)
             next();
         else
-            res.type("application/json").end(JSON.stringify(reply));
+            res.type("application/json").end(reply);
     })
 }, (req, res, next) => {
     let {viewerId} = req.params;
