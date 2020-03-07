@@ -39,14 +39,14 @@ class DaumWebtoon {
      */
     async info() {
         let webtoonId = this.webtoonId
-        let response = await axios.get('http://webtoon.daum.net/data/pc/webtoon/view/' + webtoonId)
+        let response = await axios.get('http://webtoon.daum.net/data/pc/webtoon/view/' + webtoonId + '?timestamp=' + Date.now())
         let webtoonData = response.data.data.webtoon;
         
         return {
             title: webtoonData.title,
             description: webtoonData.introduction,
             author: webtoonData.cp.name,
-            thumbnail: webtoonData.appThumbnailImage.url,
+            thumbnail: (webtoonData.appThumbnailImage || webtoonData.pcThumbnailImage).url,
             url: 'http://webtoon.daum.net/webtoon/view/' + this.webtoonId,
             sitename: 'daum'
         }
