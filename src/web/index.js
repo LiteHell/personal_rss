@@ -1,5 +1,5 @@
 let express = require('express'),
-    config = require('../../config.json'),
+    config = require('../../data/config.json'),
     path = require('path'),
     axios = require('axios'),
     app = express(),
